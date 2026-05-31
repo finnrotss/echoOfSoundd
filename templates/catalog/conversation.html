@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Диалог с {{ other_user.username }} — echoOfSound{% endblock %}
+
+{% block content %}
+<div class="chat-large">
+    <div class="chat-container">
+        <div class="chat-header">
+            <a href="{% url 'messages_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 1.5rem;">←</a>
+
+            {% if other_user.profile.avatar %}
+                <img src="{{ other_user.profile.avatar.url }}"
+                     alt="{{ other_user.username }}"
+                     style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white;">
+                    {{ other_user.username|first|upper }}
+                </div>
+            {% endif %}
+
+            <div>
+                <h1 style="font-size: 2rem; margin: 0; color: var(--text-light);">{{ other_user.username }}</h1>
+                <a href="{% url 'profile' other_user.username %}" style="color: var(--text-muted); font-size: 1rem; text-decoration: none;">Перейти в профиль</a>
+            </div>
+        </div>
+
+        <div class="chat-messages-area" style="margin-bottom: 1.5rem; max-height: 500px; overflow-y: auto;">
+            {% for message in chat_messages %}
+                {% if message.sender == user %}
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                        <div class="pixel-message chat-message-sent" style="max-width: 70%; padding: 0.8rem 1.2rem;">
+                            <p style="margin: 0; font-size: 1rem;">{{ message.text }}</p>
+                            <span style="display: block; margin-top: 0.25rem; font-size: 0.75rem; color: rgba(0,0,0,0.6);">
+                                {{ message.created_at|date:"d.m.Y H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="display: flex; justify-content: flex-start; margin-bottom: 1rem;">
+                        <div class="pixel-message chat-message-received" style="max-width: 70%; padding: 0.8rem 1.2rem;">
+                            <p style="margin: 0; font-size: 1rem;">{{ message.text }}</p>
+                            <span style="display: block; margin-top: 0.25rem; font-size: 0.75rem; color: #aaa;">
+                                {{ message.created_at|date:"d.m.Y H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <form method="post" style="display: flex; gap: 1rem;">
+            {% csrf_token %}
+            <textarea name="text" class="pixel-textarea" placeholder="Напишите сообщение..." required style="flex: 1; resize: vertical; min-height: 80px; font-size: 1rem; padding: 0.75rem;"></textarea>
+            <button type="submit" class="pixel-button" style="font-size: 1rem; padding: 0.75rem 1.5rem;">Отправить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Плейлисты — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <h1 class="glavlist-title">Плейлисты</h1>
+    {% if playlists %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+        {% for playlist in playlists %}
+        <a href="{% url 'playlist_detail' playlist.slug %}"
+           style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; text-decoration: none; transition: all 0.3s; display: block;">
+            <img src="{% if playlist.cover %}{{ playlist.cover.url }}{% else %}https://via.placeholder.com/300x200/0a0a0a/8b0000?text=PLAYLIST{% endif %}"
+                 alt="{{ playlist.title }}"
+                 style="width: 100%; height: 200px; object-fit: cover;">
+            <div style="padding: 1.25rem;">
+                <h3 style="color: var(--text-light); margin-bottom: 0.5rem; font-size: 1.25rem;">{{ playlist.title }}</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem;">
+                    {{ playlist.user.username }}
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                    Треков: {{ playlist.playlisttrack_set.count }}
+                </p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p style="font-size: 1.25rem;">Плейлисты не найдены</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

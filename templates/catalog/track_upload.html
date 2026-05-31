@@ -1,0 +1,107 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Загрузить трек — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <h1 class="trackupl-title">Загрузить трек</h1>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 2.5rem;">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div style="color: #fca5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.title.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.audio_file.label }}</label>
+                    {{ form.audio_file }}
+                    <small class="form-text">Поддерживаемые форматы: MP3, WAV. Максимальный размер: 50 МБ</small>
+                    {% if form.audio_file.errors %}
+                        <div style="color: #fca5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.audio_file.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.cover.label }}</label>
+                    {{ form.cover }}
+                    <small class="form-text">Рекомендуемый размер: 1000x1000 пикселей</small>
+                    {% if form.cover.errors %}
+                        <div style="color: #fca5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.cover.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.genre.label }}</label>
+                    {{ form.genre }}
+                    {% if form.genre.errors %}
+                        <div style="color: #fca5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.genre.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div style="color: #fca5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.description.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        {{ form.downloads_allowed }}
+                        <label for="{{ form.downloads_allowed.id_for_label }}" style="margin: 0; cursor: pointer;">
+                            {{ form.downloads_allowed.label }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        {{ form.is_public }}
+                        <label for="{{ form.is_public.id_for_label }}" style="margin: 0; cursor: pointer;">
+                            {{ form.is_public.label }}
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        Загрузить трек
+                    </button>
+                    <a href="{% url 'my_profile' %}" class="btn btn-outline" style="flex: 1; text-align: center;">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(139, 0, 0, 0.1); border: 1px solid var(--primary-color); border-radius: 8px;">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Требования к файлам:</h3>
+            <ul style="color: var(--text-muted); line-height: 1.8;">
+                <li>Аудиофайл: MP3 или WAV формат</li>
+                <li>Максимальный размер аудио: 50 МБ</li>
+                <li>Обложка: JPG, PNG формат (необязательно)</li>
+                <li>Рекомендуемый размер обложки: 1000x1000 пикселей</li>
+                <li>Название трека должно быть уникальным</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

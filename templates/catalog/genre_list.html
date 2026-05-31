@@ -1,0 +1,24 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Жанры — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <h1 class="genre-title">Жанры</h1>
+    {% if genres %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+        {% for genre in genres %}
+        <a href="{% url 'genre_detail' genre.slug %}"
+           style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; text-decoration: none; transition: all 0.3s; display: block;">
+            <h3 style="color: var(--text-light); margin-bottom: 0.5rem; font-size: 1.5rem;">{{ genre.name }}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">{{ genre.description|default:"" }}</p>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p style="font-size: 1.25rem;">Жанры не найдены</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

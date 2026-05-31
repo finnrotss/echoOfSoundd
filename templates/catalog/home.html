@@ -1,0 +1,91 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}echoOfSound{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <img src="{% static 'images/чернлого.jpg' %}" alt="echoOfSound" class="hero-logo">
+    <a href="{% url 'random_track' %}" class="echo-hedgehog-hero">
+        <img src="{% static 'images/ихоеж2.png' %}" alt="echoheg" class="echo-icon-hero">
+        <span>Echo Hedgehog</span>
+    </a>
+    <p class="hero-description">
+    </p>
+
+</div>
+
+{% if popular_tracks %}
+<div style="margin-top: 2rem;">
+        <h2 class="track-list" style="font-size: 1.8rem; margin: 2rem 0 1rem 0;">Свежие треки</h2>
+       <div class="track-grid">
+        {% for track in popular_tracks %}
+        <div class="spotify-card">
+            <div class="spotify-card-cover" style="position: relative;">
+                <img src="{% if track.cover %}{{ track.cover.url }}{% else %}https://via.placeholder.com/300x300/0a0a0a/8b0000?text=NO+COVER{% endif %}"
+                     alt="{{ track.title }}"
+                     style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;">
+                <a href="{% url 'track_detail' track.slug %}" class="spotify-play-button">▶</a>
+            </div>
+            <div class="spotify-card-info">
+                <h4 class="spotify-track-title">{{ track.title|truncatechars:35 }}</h4>
+                <p class="spotify-track-artist">{{ track.author.username }}</p>
+                <p class="spotify-track-plays" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    {{ track.plays_count }} прослушиваний
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if subscribed_playlists %}
+<div style="margin-top: 4rem;">
+    <h2 class="track-list" style="font-size: 1.8rem; margin: 2rem 0 1rem 0;">Плейлисты из твоих подписок</h2>
+    <div class="track-grid">
+        {% for playlist in subscribed_playlists %}
+        <div class="spotify-card">
+            <div class="spotify-card-cover" style="position: relative;">
+                <img src="{% if playlist.cover %}{{ playlist.cover.url }}{% else %}https://via.placeholder.com/300x300/0a0a0a/8b0000?text=PLAYLIST{% endif %}"
+                     alt="{{ playlist.name }}"
+                     style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;">
+                <a href="{% url 'playlist_detail' playlist.slug %}" class="spotify-play-button">▶</a>
+            </div>
+            <div class="spotify-card-info">
+                <h4 class="spotify-track-title">{{ playlist.name|truncatechars:35 }}</h4>
+                <p class="spotify-track-artist">{{ playlist.user.username }}</p>
+                <p class="spotify-track-plays" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    {{ playlist.tracks.count }} треков
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if genres %}
+<div style="margin-top: 4rem; overflow: hidden;">
+    <h2 class="track-list">Жанры</h2>
+    <div class="genres-scroll-container">
+        <div class="genres-scroll">
+            {% for genre in genres %}
+            <a href="{% url 'genre_detail' genre.slug %}"
+               class="genre-badge"
+               style="font-size: 1rem; padding: 0.75rem 1.5rem; text-decoration: none; transition: all 0.2s; white-space: nowrap;">
+                {{ genre.name }}
+            </a>
+            {% endfor %}
+            {% for genre in genres %}
+            <a href="{% url 'genre_detail' genre.slug %}"
+               class="genre-badge"
+               style="font-size: 1rem; padding: 0.75rem 1.5rem; text-decoration: none; transition: all 0.2s; white-space: nowrap;">
+                {{ genre.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

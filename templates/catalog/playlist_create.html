@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Создать плейлист — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+    <h1 style="color: var(--text-light); margin-bottom: 2rem;">Создать плейлист</h1>
+
+    <form method="post" enctype="multipart/form-data" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem;">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Название плейлиста *
+            </label>
+            <input type="text"
+                   name="name"
+                   id="name"
+                   class="form-control"
+                   placeholder="Мой плейлист"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="description" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Описание
+            </label>
+            <textarea name="description"
+                      id="description"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Описание плейлиста..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label style="color: var(--text-light); display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox"
+                       name="is_public"
+                       checked
+                       style="margin-right: 0.5rem;">
+                Публичный плейлист
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Создать</button>
+            <a href="{% url 'playlist_list' %}" class="btn btn-outline" style="flex: 1; text-align: center;">Отмена</a>
+        </div>
+        <div class="form-group">
+            <label for="cover" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Обложка (необязательно)
+            </label>
+            <input type="file" name="cover" id="cover" class="form-control" accept="image/*">
+        </div>
+    </form>
+</div>
+{% endblock %}

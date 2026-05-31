@@ -1,0 +1,59 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Регистрация — echoOfSound{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h2>Регистрация</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">Имя пользователя</label>
+            <input type="text"
+                   name="username"
+                   class="form-control"
+                   required
+                   autofocus>
+            <small class="form-text">Только буквы, цифры и символы @/./+/-/_</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email (необязательно)</label>
+            <input type="email"
+                   name="email"
+                   class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Пароль</label>
+            <input type="password"
+                   name="password1"
+                   class="form-control"
+                   required>
+            <small class="form-text">Минимум 8 символов</small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Подтверждение пароля</label>
+            <input type="password"
+                   name="password2"
+                   class="form-control"
+                   required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Зарегистрироваться
+        </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        <p>Уже есть аккаунт?
+            <a href="{% url 'login' %}" style="color: var(--primary-color); text-decoration: none;">
+                Войти
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}

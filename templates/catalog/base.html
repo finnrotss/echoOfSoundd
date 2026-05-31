@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}echoOfSound{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+<body>
+<!-- Боковая панель -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h2>echoOfSound</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;"></p>
+    </div>
+
+    <nav>
+        <ul class="sidebar-nav">
+            <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Главная</a></li>
+            <li><a href="{% url 'track_list' %}" class="{% if request.resolver_match.url_name == 'track_list' %}active{% endif %}">Треки</a></li>
+            <li><a href="{% url 'genre_list' %}" class="{% if request.resolver_match.url_name == 'genre_list' %}active{% endif %}">Жанры</a></li>
+            <li><a href="{% url 'playlist_list' %}" class="{% if request.resolver_match.url_name == 'playlist_list' %}active{% endif %}">Плейлисты</a></li>
+            <li><a href="{% url 'search' %}" class="{% if request.resolver_match.url_name == 'search' %}active{% endif %}">Поиск</a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'messages_list' %}" class="{% if request.resolver_match.url_name == 'messages_list' or request.resolver_match.url_name == 'conversation' %}active{% endif %}">Сообщения</a></li>
+            <li><a href="{% url 'track_upload' %}" class="{% if request.resolver_match.url_name == 'track_upload' %}active{% endif %}" style="color: var(--primary-color);">Загрузить трек</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-user">
+        {% if user.is_authenticated %}
+            <div class="sidebar-user-info">
+                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                <div>
+                    <div class="user-name">{{ user.username }}</div>
+                    <a href="{% url 'my_profile' %}" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">Мой профиль</a>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" style="display: block; padding: 0.5rem 0.75rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Выход</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary" style="width: 100%; text-align: center; margin-bottom: 0.5rem;">Вход</a>
+            <a href="{% url 'register' %}" class="btn btn-outline" style="width: 100%; text-align: center;">Регистрация</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Основной контент -->
+<div class="main-content">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2026 echoOfSound</p>
+    </footer>
+</div>
+
+    {% load static %}
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    <script src="{% static 'js/borders.js' %}"></script>
+
+</body>
+</html>

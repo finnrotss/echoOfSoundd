@@ -1,0 +1,162 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ track.title }} — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <!-- Ретро-плеер -->
+    <div class="retro-track-card">
+        <div class="retro-header">
+            <span>▶ PLAYING NOW</span>
+            <span class="retro-cmd"></span>
+        </div>
+        <div class="retro-body">
+            <div class="retro-cover">
+                {% if track.cover %}
+                    <img src="{{ track.cover.url }}" alt="{{ track.title }}">
+                {% else %}
+                    <div class="retro-no-cover"></div>
+                {% endif %}
+            </div>
+            <div class="retro-info">
+                <div class="retro-title">{{ track.title }}</div>
+                <div class="retro-artist">{{ track.author.username }}</div>
+                <div class="retro-details">
+                    <div><span class="retro-label">Жанр:</span> {{ track.genre.name|default:"—" }}</div>
+                    <div><span class="retro-label">Формат:</span> MP3</div>
+                    <div><span class="retro-label">Публичный:</span> {% if track.is_public %}Да{% else %}Нет{% endif %}</div>
+                    <div><span class="retro-label">Загружен:</span> {{ track.created_at|date:"d.m.Y" }}</div>
+                    <div><span class="retro-label">Прослушиваний:</span> {{ track.plays_count }}</div>
+                    <div><span class="retro-label">Лайков:</span> {{ track.likes_count }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="retro-player-area">
+            <audio id="trackPlayer" controls preload="metadata" style="width: 100%;">
+                <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+            </audio>
+            <div class="retro-equalizer">
+                <div class="eq"></div><div class="eq"></div><div class="eq"></div>
+                <div class="eq"></div><div class="eq"></div><div class="eq"></div>
+            </div>
+        </div>
+        <div class="retro-actions">
+            <button class="retro-btn like-btn"
+                    data-track-slug="{{ track.slug }}"
+                    data-liked="{% if user in track.likes.all %}true{% else %}false{% endif %}">
+                <span class="like-icon">{% if user in track.likes.all %}{% else %}♡{% endif %}</span>
+                Лайк <span class="like-count">{{ track.likes_count }}</span>
+            </button>
+            {% if user.is_authenticated %}
+                <button class="retro-btn" onclick="document.getElementById('playlistModal').style.display='block'"> Добавить в плейлист</button>
+            {% else %}
+                <button class="retro-btn" disabled title="Войдите, чтобы добавить"> Добавить в плейлист</button>
+            {% endif %}
+            {% if track.downloads_allowed %}
+                <a href="{{ track.audio_file.url }}" download class="retro-btn"> Скачать</a>
+            {% endif %}
+            {% if user.is_authenticated and user == track.author %}
+                <a href="{% url 'track_delete' track.slug %}" class="retro-btn" style="border-color: #dc2626; color: #dc2626;"> Удалить</a>
+            {% endif %}
+        </div>
+        {% if track.description %}
+        <div class="retro-description">
+            <div class="retro-desc-title"> Описание</div>
+            <p>{{ track.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Комментарии в ретро-стиле -->
+    <div class="retro-track-card" style="margin-top: 2rem;">
+        <div class="retro-header"> КОММЕНТАРИИ</div>
+        <div style="padding: 1rem;">
+            {% if user.is_authenticated %}
+            <form method="post" style="margin-bottom: 2rem;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="timestamp" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                        Таймкод (секунды от начала трека)
+                    </label>
+                    <input type="number"
+                           name="timestamp"
+                           id="timestamp"
+                           class="form-control"
+                           placeholder="0"
+                           min="0"
+                           required
+                           style="margin-bottom: 1rem;">
+                </div>
+                <div class="form-group">
+                    <textarea name="text"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Оставьте комментарий"
+                              required></textarea>
+                </div>
+                <button type="submit" class="retro-btn">Отправить</button>
+            </form>
+            {% else %}
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                <a href="{% url 'login' %}" style="color: var(--primary-color);">Войдите</a>, чтобы оставить комментарий
+            </p>
+            {% endif %}
+
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <span class="comment-author">
+                        <a href="{% url 'profile' comment.user.username %}" style="color: var(--text-light); text-decoration: none;">
+                            {{ comment.user.username }}
+                        </a>
+                    </span>
+                    <span class="comment-time">
+                        {% if comment.timestamp %}
+                            <span style="color: var(--primary-color); margin-right: 0.5rem;">
+                                {{ comment.timestamp|floatformat:0 }}с
+                            </span>
+                        {% endif %}
+                        {{ comment.created_at|date:"d.m.Y H:i" }}
+                    </span>
+                </div>
+                <p class="comment-text">{{ comment.text }}</p>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Комментариев пока нет</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div id="playlistModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);">
+    <div style="background-color: var(--bg-card); margin: 10% auto; padding: 2rem; border: 1px solid var(--border-color); border-radius: 12px; width: 90%; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="color: var(--text-light); margin: 0;">Добавить в плейлист</h2>
+            <button onclick="document.getElementById('playlistModal').style.display='none'" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+
+        {% if user_playlists %}
+        <form method="post" action="{% url 'add_to_playlist' track.slug %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">Выберите плейлист:</label>
+                <select name="playlist_id" class="form-control" required>
+                    <option value="">-- Выберите плейлист --</option>
+                    {% for playlist in user_playlists %}
+                    <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Добавить</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('playlistModal').style.display='none'" style="flex: 1;">Отмена</button>
+            </div>
+        </form>
+        {% else %}
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">У вас пока нет плейлистов</p>
+        <a href="{% url 'playlist_create' %}" class="btn btn-primary" style="display: block; text-align: center;">Создать плейлист</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

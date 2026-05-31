@@ -1,0 +1,44 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Подписчики {{ user.username }} — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--text-light);">Подписчики {{ user.username }}</h1>
+
+    {% if followers %}
+        <div style="display: grid; gap: 1rem;">
+            {% for follow in followers %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    {% if follow.follower.profile.avatar %}
+                        <img src="{{ follow.follower.profile.avatar.url }}"
+                             alt="{{ follow.follower.username }}"
+                             style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white;">
+                            {{ follow.follower.username|first|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <a href="{% url 'profile' follow.follower.username %}" style="color: var(--text-light); text-decoration: none; font-size: 1.1rem; font-weight: 600;">
+                            {{ follow.follower.username }}
+                        </a>
+                        {% if follow.follower.profile.bio %}
+                            <p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ follow.follower.profile.bio|truncatewords:10 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="{% url 'profile' follow.follower.username %}" class="btn btn-outline">Профиль</a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;">
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Пока нет подписчиков</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

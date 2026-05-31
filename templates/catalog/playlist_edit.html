@@ -1,0 +1,64 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Редактировать плейлист — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+    <h1 style="color: var(--text-light); margin-bottom: 2rem;">Редактировать плейлист</h1>
+
+    <form method="post" enctype="multipart/form-data" class="pixel-form"
+          style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 2rem;">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="name" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Название плейлиста *
+            </label>
+            <input type="text"
+                   name="name"
+                   id="name"
+                   class="form-control"
+                   value="{{ playlist.name }}"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="description" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Описание
+            </label>
+            <textarea name="description"
+                      id="description"
+                      class="form-control"
+                      rows="4">{{ playlist.description }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="cover" style="color: var(--text-light); margin-bottom: 0.5rem; display: block;">
+                Обложка
+            </label>
+            {% if playlist.cover %}
+                <div style="margin-bottom: 0.5rem;">
+                    <img src="{{ playlist.cover.url }}" width="100" style="border-radius: 8px;">
+                </div>
+            {% endif %}
+            <input type="file" name="cover" id="cover" class="form-control" accept="image/*">
+            <small class="form-text">Оставьте пустым, чтобы не менять текущую обложку.</small>
+        </div>
+
+        <div class="form-group">
+            <label style="color: var(--text-light); display: flex; align-items: center; cursor: pointer;">
+                <input type="checkbox"
+                       name="is_public"
+                       {% if playlist.is_public %}checked{% endif %}
+                       style="margin-right: 0.5rem;">
+                Публичный плейлист
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить</button>
+            <a href="{% url 'playlist_detail' playlist.slug %}" class="btn btn-outline" style="flex: 1; text-align: center;">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Треки — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <h1 class="track-list" style="font-family: '8nominal', serif; font-size: 2rem;">Все треки</h1>
+
+    <!-- Поиск и фильтры с пиксельной кнопкой -->
+    <div class="search-bar" style="margin-bottom: 2rem;">
+        <form method="get" style="display: flex; gap: 1rem; width: 100%; align-items: flex-end;">
+            <input type="text"
+                   name="search"
+                   class="form-control pixel-input"
+                   placeholder="Поиск треков или артистов..."
+                   value="{{ request.GET.search }}"
+                   style="flex: 2; background: #000; border: 2px solid var(--primary-color); color: white; padding: 0.6rem; font-family: 'pixelta', monospace;">
+
+            <select name="genre" class="form-control pixel-select" style="flex: 1; background: #000; border: 2px solid var(--primary-color); color: white; padding: 0.6rem; font-family: 'pixelta', monospace;">
+                <option value="">Все жанры</option>
+                {% for genre in genres %}
+                <option value="{{ genre.id }}" {% if request.GET.genre == genre.id|stringformat:"s" %}selected{% endif %}>
+                    {{ genre.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-pixel">Найти</button>
+        </form>
+    </div>
+
+    <!-- Список треков в стиле Spotify -->
+    {% if tracks %}
+    <div class="track-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+        {% for track in tracks %}
+        <div class="spotify-card">
+            <div class="spotify-card-cover" style="position: relative;">
+                <img src="{% if track.cover %}{{ track.cover.url }}{% else %}https://via.placeholder.com/300x300/0a0a0a/8b0000?text=NO+COVER{% endif %}"
+                     alt="{{ track.title }}"
+                     style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block;">
+                <a href="{% url 'track_detail' track.slug %}" class="spotify-play-button">▶</a>
+            </div>
+            <div class="spotify-card-info">
+                <div class="genre-badge" style="font-size: 0.7rem; margin-bottom: 0.3rem;">{{ track.genre.name }}</div>
+                <h4 class="spotify-track-title">{{ track.title|truncatechars:30 }}</h4>
+                <p class="spotify-track-artist">{{ track.author.username }}</p>
+                <div class="track-stats" style="font-size: 0.7rem; color: gray; margin-top: 0.2rem;">
+                    <span>{{ track.plays_count }} прослушиваний</span>
+                    <span>{{ track.created_at|date:"d.m.Y" }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p style="font-size: 1.25rem;">Треки не найдены</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

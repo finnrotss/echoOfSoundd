@@ -1,0 +1,60 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Удалить трек — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 12px; padding: 2.5rem;">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem; color: var(--primary-color); text-align: center;">
+                Удалить трек?
+            </h1>
+
+            <div style="background: rgba(139, 0, 0, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                    {% if track.cover %}
+                    <img src="{{ track.cover.url }}"
+                         alt="{{ track.title }}"
+                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color);">
+                    {% else %}
+                    <div style="width: 100px; height: 100px; background: var(--bg-hover); border-radius: 8px; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        NO COVER
+                    </div>
+                    {% endif %}
+
+                    <div style="flex: 1;">
+                        <h3 style="color: var(--text-light); margin-bottom: 0.5rem; font-size: 1.25rem;">
+                            {{ track.title }}
+                        </h3>
+                        <p style="color: var(--text-muted); margin-bottom: 0.25rem;">
+                            Жанр: {{ track.genre.name }}
+                        </p>
+                        <p style="color: var(--text-muted);">
+                            Прослушиваний: {{ track.plays_count }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(139, 0, 0, 0.2); border: 1px solid var(--primary-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                <p style="color: var(--text-light); text-align: center; line-height: 1.6;">
+                    Вы уверены, что хотите удалить этот трек?<br>
+                    <strong style="color: var(--primary-color);">Это действие нельзя отменить!</strong>
+                </p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; background-color: #dc2626; border-color: #dc2626;">
+                        Удалить трек
+                    </button>
+                    <a href="{% url 'track_detail' track.slug %}" class="btn btn-outline" style="flex: 1; text-align: center;">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

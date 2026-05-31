@@ -1,0 +1,193 @@
+{% extends 'catalog/base.html' %}
+
+{% block name %}{{ playlist.name }} — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <div style="background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 2rem; align-items: start;">
+            <img src="{% if playlist.cover %}{{ playlist.cover.url }}{% else %}https://via.placeholder.com/250/0a0a0a/8b0000?text=PLAYLIST{% endif %}"
+                 alt="{{ playlist.name }}"
+                 style="width: 250px; height: 250px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border-color);">
+
+            <div style="flex: 1;">
+                <h1 class="playlist-title">{{ playlist.name }}</h1>
+                <div class="pixel-content">
+                    <p style="margin-bottom: 0.5rem;">
+                        Создатель:
+                        <a href="{% url 'profile' playlist.user.username %}" style="color: var(--primary-color); text-decoration: none;">
+                            {{ playlist.user.username }}
+                        </a>
+                    </p>
+                    <p style="margin-bottom: 0.5rem;">
+                        Создан: {{ playlist.created_at|date:"d.m.Y" }}
+                    </p>
+                    <p style="margin-bottom: 1rem;">
+                        Треков: {{ playlist.tracks.count }}
+                    </p>
+
+                    {% if playlist.description %}
+                    <p style="line-height: 1.6; margin-top: 1rem;">{{ playlist.description }}</p>
+                    {% endif %}
+
+                    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                        <button id="playAllBtn" class="btn btn-primary">Воспроизвести всё</button>
+                        {% if playlist.user == request.user %}
+                            <a href="{% url 'playlist_edit' playlist.slug %}" class="btn btn-outline">Редактировать</a>
+                        {% endif %}
+                    </div>
+                <div id="playerContainer" style="display: none; margin-top: 1.5rem; background: var(--bg-card); padding: 1rem; border-radius: 12px;">
+                    <audio id="playlistPlayer" controls style="width: 100%;"></audio>
+                    <p id="nowPlayingText" style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.9rem;"></p>
+                </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const playAllBtn = document.getElementById('playAllBtn');
+                            const playerContainer = document.getElementById('playerContainer');
+                            const audioPlayer = document.getElementById('playlistPlayer');
+                            const nowPlayingSpan = document.getElementById('nowPlayingText');
+
+                            const trackElements = document.querySelectorAll('.playlist-track-item');
+                            const validTracks = [];
+                            trackElements.forEach((el, idx) => {
+                                const url = el.getAttribute('data-url');
+                                if (url && url.trim() !== "") {
+                                    validTracks.push({
+                                        url: url,
+                                        title: el.getAttribute('data-title') || `Трек ${idx+1}`,
+                                        artist: el.getAttribute('data-artist') || "Unknown",
+                                        index: idx
+                                    });
+                                }
+                            });
+
+                            if (validTracks.length === 0) {
+                                if (playAllBtn) playAllBtn.disabled = true;
+                                return;
+                            }
+
+                            let currentIndex = 0;
+                            let isPlaying = false;
+
+                            function updateNowPlaying() {
+                                if (currentIndex < validTracks.length) {
+                                    const track = validTracks[currentIndex];
+                                    nowPlayingSpan.textContent = `Сейчас играет: ${track.title} — ${track.artist}`;
+                                } else {
+                                    nowPlayingSpan.textContent = `Воспроизведение завершено`;
+                                }
+                            }
+
+                            function playTrack(index) {
+                                if (index >= validTracks.length) {
+                                    audioPlayer.pause();
+                                    audioPlayer.src = "";
+                                    if (playAllBtn) {
+                                        playAllBtn.disabled = false;
+                                        playAllBtn.textContent = "Воспроизвести всё";
+                                    }
+                                    playerContainer.style.display = "none";
+                                    isPlaying = false;
+                                    currentIndex = 0;
+                                    return;
+                                }
+                                const track = validTracks[index];
+                                audioPlayer.src = track.url;
+                                audioPlayer.play().catch(error => {
+                                    console.error("Ошибка воспроизведения:", error);
+                                    alert("Не удалось воспроизвести трек. Возможно, браузер блокирует автовоспроизведение.");
+                                    if (playAllBtn) {
+                                        playAllBtn.disabled = false;
+                                        playAllBtn.textContent = "Воспроизвести всё";
+                                    }
+                                    playerContainer.style.display = "none";
+                                    isPlaying = false;
+                                    currentIndex = 0;
+                                });
+                                updateNowPlaying();
+                            }
+
+                            audioPlayer.addEventListener('ended', function() {
+                                currentIndex++;
+                                playTrack(currentIndex);
+                            });
+
+                            function startPlaybackFrom(index) {
+                                if (isPlaying) {
+                                    audioPlayer.pause();
+                                }
+                                playerContainer.style.display = "block";
+                                currentIndex = index;
+                                playTrack(currentIndex);
+                                if (playAllBtn) {
+                                    playAllBtn.disabled = true;
+                                    playAllBtn.textContent = "Воспроизводится...";
+                                }
+                                isPlaying = true;
+                            }
+
+                            if (playAllBtn) {
+                                playAllBtn.addEventListener('click', function() {
+                                    if (playAllBtn.disabled) return;
+                                    startPlaybackFrom(0);
+                                });
+                            }
+
+                            trackElements.forEach(trackEl => {
+                                trackEl.addEventListener('click', function(e) {
+                                    if (e.target.tagName === 'A') return;
+                                    const idx = parseInt(this.getAttribute('data-index'));
+                                    if (!isNaN(idx) && validTracks[idx]) {
+                                        startPlaybackFrom(idx);
+                                    }
+                                });
+                                trackEl.style.cursor = 'pointer';
+                            });
+                        });
+                        </script>
+                        {% if playlist.user == user %}
+                            <a href="{% url 'playlist_edit' playlist.slug %}" class="btn btn-outline">Редактировать</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h2 class="section-title">Треки в плейлисте</h2>
+
+    {% if playlist.tracks.all %}
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
+            {% for pt in playlist.tracks.all %}
+            <div class="playlist-track-item"
+                 data-url="{{ pt.track.audio_file.url }}"
+                 data-title="{{ pt.track.title }}"
+                 data-artist="{{ pt.track.author.username }}"
+                 data-index="{{ forloop.counter0 }}"
+                 style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                <span style="color: var(--text-muted); font-weight: 600; min-width: 30px;">{{ forloop.counter }}</span>
+                <img src="{% if pt.track.cover %}{{ pt.track.cover.url }}{% else %}https://via.placeholder.com/60/0a0a0a/8b0000?text=NO{% endif %}"
+                     alt="{{ pt.track.title }}"
+                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                <div style="flex: 1;">
+                    <h4 style="color: var(--text-light); margin-bottom: 0.25rem;">
+                        <a href="{% url 'track_detail' pt.track.slug %}" style="color: var(--text-light); text-decoration: none;">
+                            {{ pt.track.title }}
+                        </a>
+                    </h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        <a href="{% url 'profile' pt.track.author.username %}" style="color: var(--text-muted); text-decoration: none;">
+                            {{ pt.track.author.username }}
+                        </a>
+                    </p>
+                </div>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">{{ pt.track.plays_count }} прослушиваний</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+            <p style="font-size: 1.25rem;">В плейлисте пока нет треков</p>
+        </div>
+        {% endif %}
+</div>
+{% endblock %}

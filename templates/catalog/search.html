@@ -1,0 +1,99 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Поиск — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <h1 class="search-title">Поиск</h1>
+
+    <form method="get" style="margin-bottom: 3rem;">
+        <div style="display: flex; gap: 1rem;">
+            <input type="text"
+                   name="q"
+                   class="form-control"
+                   placeholder="Введите название трека или @имя_артиста..."
+                   value="{{ query }}"
+                   style="flex: 1;">
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+            Подсказка: используйте @ для поиска артистов (например, @test_reg)
+        </p>
+    </form>
+
+    {% if query %}
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            Результаты поиска: "{{ query }}"
+        </h2>
+
+        {% if artists %}
+        <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-light);">Артисты</h3>
+        <div style="display: grid; gap: 1rem; margin-bottom: 3rem;">
+            {% for artist in artists %}
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    {% if artist.profile.avatar %}
+                        <img src="{{ artist.profile.avatar.url }}"
+                             alt="{{ artist.username }}"
+                             style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white;">
+                            {{ artist.username|first|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <a href="{% url 'profile' artist.username %}" style="color: var(--text-light); text-decoration: none; font-size: 1.2rem; font-weight: 600;">
+                            @{{ artist.username }}
+                        </a>
+                        {% if artist.profile.bio %}
+                            <p style="color: var(--text-muted); margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ artist.profile.bio|truncatewords:15 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="{% url 'profile' artist.username %}" class="btn btn-primary">Профиль</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if tracks %}
+        <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-light);">Треки</h3>
+        <div class="track-grid">
+            {% for track in tracks %}
+            <div class="track-card">
+                <img src="{% if track.cover %}{{ track.cover.url }}{% else %}https://via.placeholder.com/300x200/0a0a0a/8b0000?text=NO+COVER{% endif %}"
+                     alt="{{ track.title }}"
+                     class="track-cover">
+                <div class="track-info">
+                    <div class="genre-badge">{{ track.genre.name }}</div>
+                    <h3 class="track-title">{{ track.title }}</h3>
+                    <p class="track-author">
+                        <a href="{% url 'profile' track.author.username %}" style="color: var(--text-muted); text-decoration: none;">
+                            {{ track.author.username }}
+                        </a>
+                    </p>
+                    <div class="track-stats">
+                        <span>{{ track.plays_count }} прослушиваний</span>
+                    </div>
+                    <a href="{% url 'track_detail' track.slug %}" class="btn btn-primary" style="width: 100%;">Слушать</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not tracks and not artists %}
+        <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+            <p style="font-size: 1.25rem;">По вашему запросу ничего не найдено</p>
+            <p style="margin-top: 1rem;">Попробуйте изменить поисковый запрос</p>
+        </div>
+        {% endif %}
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p style="font-size: 1.25rem;">Введите запрос для поиска треков</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

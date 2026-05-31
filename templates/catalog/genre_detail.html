@@ -1,0 +1,45 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ genre.name }} — echoOfSound{% endblock %}
+
+{% block content %}
+<div style="margin-top: 2rem;">
+    <div style="background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-light);">{{ genre.name }}</h1>
+        {% if genre.description %}
+        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">{{ genre.description }}</p>
+        {% endif %}
+    </div>
+
+    <h2 class="genre-detail">Треки в жанре {{ genre.name }}</h2>
+
+    {% if genre.tracks.all %}
+    <div class="track-grid">
+        {% for track in genre.tracks.all %}
+        <div class="track-card">
+            <img src="{% if track.cover %}{{ track.cover.url }}{% else %}https://via.placeholder.com/300x200/0a0a0a/8b0000?text=NO+COVER{% endif %}"
+                 alt="{{ track.title }}"
+                 class="track-cover">
+            <div class="track-info">
+                <div class="genre-badge">{{ track.genre.name }}</div>
+                <h3 class="track-title">{{ track.title }}</h3>
+                <p class="track-author">
+                    <a href="{% url 'profile' track.author.username %}" style="color: var(--text-muted); text-decoration: none;">
+                        {{ track.author.username }}
+                    </a>
+                </p>
+                <div class="track-stats">
+                    <span>{{ track.plays_count }} прослушиваний</span>
+                </div>
+                <a href="{% url 'track_detail' track.slug %}" class="btn btn-primary" style="width: 100%;">Слушать</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem; color: var(--text-muted);">
+        <p style="font-size: 1.25rem;">В этом жанре пока нет треков</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
